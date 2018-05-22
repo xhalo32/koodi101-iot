@@ -1,6 +1,7 @@
 #!/usr/bin/python3
+# EXECUTE WITH SUPER USER PERMISSIONS!
 
-import envirophat
+import envirophat as ep
 import json
 import requests
 import os
@@ -8,14 +9,24 @@ import time
 
 def readSensors():
     sensors = {
-        "temperature": envirophat.weather.temperature()
+        "weather": {
+            "pressure": float(ep.weather.pressure()),
+            "temperature": float(ep.weather.temperature()),
+            "altitude": float(ep.weather.altitude()),
+        },
+        "motion": {
+            "accelerometer": list(ep.motion.accelerometer()),
+            "heading": float(ep.motion.heading()),
+            "magnetometer": list(ep.motion.accelerometer()),
+            "raw_heading": float(ep.motion.raw_heading()),
+        }
     }
 
-    return sensors 
+    return sensors
 
 if __name__ == "__main__":
     url = os.environ["ENDPOINT"]
-    print(url)
+    print("ENDPOINT="+url)
 
     sensorsJson = json.dumps(readSensors(), sort_keys=True, indent=2)
 
@@ -23,4 +34,5 @@ if __name__ == "__main__":
     print(sensorsJson)
 
     headers = {'content-type': 'application/json'}
-    requests.post(url, data=sensorsJson, headers=headers)
+    rjson = requests.post(url, data=sensorsJson, headers=headers)
+    print(rjson)
